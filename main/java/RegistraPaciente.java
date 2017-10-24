@@ -5,11 +5,15 @@ import java.awt.event.ActionListener;
 import javax.swing.border.EmptyBorder;
 import java.awt.FlowLayout;
 import java.awt.image.BufferedImage;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class UIRegistrarPx extends JFrame {
+public class RegistraPaciente extends JFrame {
 
 	private JTextArea familiarArea;
 	private JTextArea responsableArea;
@@ -19,7 +23,7 @@ public class UIRegistrarPx extends JFrame {
 	private ImageIcon imageIcon;
 	private JTextArea PadecimientosArea;
 	
-	public UIRegistrarPx(){
+	public RegistraPaciente(){
 
 	createUIR();
 	setTitle("REGISTRAR PACIENTE NUEVO");
@@ -124,8 +128,29 @@ public class UIRegistrarPx extends JFrame {
 		buttonRegistrar = new JButton("Registrar");
 		buttonRegistrar.addActionListener(new ActionListener(){
 			@Override
-			public void actionPerformed(ActionEvent e){
-				
+			public void actionPerformed(ActionEvent event){
+				try {
+					//Get connection with MySQL database
+					Connection mycon = DriverManager.getConnection("jdbc:mysql://localhost:3306/sistema_asilo?useSSL=false",
+							"root", "1212");
+					Statement myStmt = mycon.createStatement();
+					//Adds the new score to the database
+					String mySQLTable = "asilo";
+						
+					String sql = "INSERT INTO " + mySQLTable + "(nombre,ciudad,calle,codigo_postal,cuartos_disponibles,camas_disponibles) "
+							+ "VALUES ('asilo1','Monterrey','Eugenio Gza Sada',64860,20,10)"; 
+					
+					myStmt.executeUpdate(sql);
+					//Execute SQL query
+					ResultSet myRs = myStmt.executeQuery("SELECT * from " + mySQLTable);
+
+					while (myRs.next()) {
+					    System.out.println(myRs.getString(1)); //gets the first column's rows.
+					}
+				} catch (Exception e) {
+					System.out.println("Error with database connection");
+					e.printStackTrace();
+				}
 			}
 		});
 		panelFormat.add(buttonRegistrar, d);
@@ -136,7 +161,6 @@ public class UIRegistrarPx extends JFrame {
 
 
 	public JScrollPane setupJTArea (JTextArea jta){
-
 		jta = new JTextArea();
 		jta.setEditable(true);
 		jta.setLineWrap(true);
@@ -159,7 +183,7 @@ public class UIRegistrarPx extends JFrame {
 		SwingUtilities.invokeLater(new Runnable(){
 			@Override
 			public void run(){
-				new UIRegistrarPx().setVisible(true);
+				new RegistraPaciente().setVisible(true);
 			}
 
 		});
